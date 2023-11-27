@@ -88,6 +88,16 @@ def publish_video(username: str, video_id: str):
     else:
         return {"message": "Video not found or access denied"}
 
+
+@app.get("/find-all-videos/{username}")
+async def find_all(username: str):
+    query = "SELECT * FROM videos WHERE uploader = :username"
+    videos = await database.fetch_all(query=query, values={"username": username})
+    if videos:
+        return [{"video_id": video["video_id"], "video_name": video["video_name"]} for video in videos]
+    else:
+        return {"message": "No video found"}
+
         
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=1024)
