@@ -104,14 +104,23 @@ def publish_video(username: str, video_id: str):
         return {"message": "Video not found or access denied"}
 
 
+
 @app.get("/find-all-videos/{username}")
-async def find_all(username: str):
-    query = "SELECT video_id, video_name, publicity FROM videos WHERE uploader = :username"
-    videos = await database.fetch_all(query=query, values={"username": username})
+async def find_all(username: str, page: int = Query(default=1, ge=1), size: int = Query(default=10, ge=1)):
+    offset = (page - 1) * size
+    query = """
+    SELECT video_id, video_name, publicity
+    FROM videos
+    WHERE uploader = :username
+    ORDER BY video_name
+    LIMIT :size OFFSET :offset
+    """
+    videos = await database.fetch_all(query=query, values={"username": username, "size": size, "offset": offset})
     if videos:
         return [{"video_id": video['video_id'], "video_name": video['video_name'], "publicity": video['publicity']} for video in videos]
     else:
         return {"message": "No video found"}
+
 
         
 if __name__ == "__main__":
