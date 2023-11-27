@@ -68,7 +68,7 @@ async def fetch_video(username: str, video_id: str):
 @app.get("/weather/nyc")
 async def get_weather_nyc():
 
-    response = requests.get("https://api.openweathermap.org/data/3.0/onecall?lat=40.71&lon=-74.00&appid=cabf57bb4bf902270e971a920098e5b6")
+    response = requests.get("https://api.openweathermap.org/data/3.0/onecall?lat=40.71&lon=-74.00&appid=?????????")
     if response.status_code == 200:
         return response
     else:
