@@ -91,10 +91,10 @@ def publish_video(username: str, video_id: str):
 
 @app.get("/find-all-videos/{username}")
 async def find_all(username: str):
-    query = "SELECT * FROM videos WHERE uploader = :username"
+    query = "SELECT video_id, video_name, publicity FROM videos WHERE uploader = :username"
     videos = await database.fetch_all(query=query, values={"username": username})
     if videos:
-        return [{"video_id": video["video_id"], "video_name": video["video_name"]} for video in videos]
+        return [{"video_id": video['video_id'], "video_name": video['video_name'], "publicity": video['publicity']} for video in videos]
     else:
         return {"message": "No video found"}
 
