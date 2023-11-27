@@ -17,3 +17,7 @@ publish
 fetch
 
 "curl -X GET "http://ec2-18-219-133-27.us-east-2.compute.amazonaws.com:1024/fetch-video/zy2550/63ae25db-8510-4017-99d7-80c0cbab4c2c""
+
+Delete
+
+"curl -X DELETE "http://ec2-18-219-133-27.us-east-2.compute.amazonaws.com:1024/delete-video/zy2550/63ae25db-8510-4017-99d7-80c0cbab4c2c""
