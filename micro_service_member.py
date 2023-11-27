@@ -29,7 +29,7 @@ async def shutdown():
     await database.disconnect()
 
 # Microservice 1 URL
-ms1_url = 'ec2-3-140-208-26.us-east-2.compute.amazonaws.com:1024'
+ms1_url = 'http://ec2-3-140-208-26.us-east-2.compute.amazonaws.com:1024'
 
 @app.post("/upload-video/")
 async def upload_video(username: str, file: UploadFile = File(...)):
