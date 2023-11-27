@@ -64,20 +64,13 @@ async def fetch_video(username: str, video_id: str):
     else:
         raise HTTPException(status_code=404, detail="Video not found or access denied")
 
-NYC_LATITUDE = 40.7128
-NYC_LONGITUDE = -74.0060
 
 @app.get("/weather/nyc")
 async def get_weather_nyc():
-    params = {
-        'lat': NYC_LATITUDE,
-        'lon': NYC_LONGITUDE,
-        'appid': "ecf7f071444f0e04ad65b1bdde3c701b",
-        'units': 'metric'
-    }
-    response = requests.get("https://api.openweathermap.org/data/3.0/onecall", params=params)
+
+    response = requests.get("https://api.openweathermap.org/data/3.0/onecall?lat=40.71&lon=-74.00&appid=cabf57bb4bf902270e971a920098e5b6")
     if response.status_code == 200:
-        return response.json()
+        return response
     else:
         raise HTTPException(status_code=response.status_code, detail="Error fetching weather data")
 
