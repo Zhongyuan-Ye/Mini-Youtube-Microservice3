@@ -47,18 +47,22 @@ async def upload_video(username: str, file: UploadFile = File(...)):
     else:
         raise HTTPException(status_code=response.status_code, detail=response.json())
 
+
 @app.get("/fetch-video/{username}/{video_id}")
 async def fetch_video(username: str, video_id: str):
     query = "SELECT * FROM videos WHERE video_id = :video_id"
     video = await database.fetch_one(query=query, values={"video_id": video_id})
     if video and (video['uploader'] == username or video['publicity']):
-        response = requests.get(f"{ms1_url}/fetch-video/{video_id}.mp4")
+        response = requests.get(f"{ms1_url}/fetch-video/{video_id}.mp4", stream=True)
         if response.status_code == 200:
-            return response.content
+            return StreamingResponse(response.iter_content(chunk_size=1024*1024), media_type="video/mp4")
         else:
-            raise HTTPException(status_code=response.status_code, detail=response.json())
+            raise HTTPException(status_code=response.status_code, detail="Error fetching video")
     else:
         raise HTTPException(status_code=404, detail="Video not found or access denied")
+
+
+
 
 @app.delete("/delete-video/{username}/{video_id}")
 async def delete_video(username: str, video_id: str):
