@@ -108,7 +108,7 @@ def publish_video(username: str, video_id: str):
 @app.get("/find-all-videos/{username}")
 async def find_all(username: str, page: int = Query(default=1, ge=1), size: int = Query(default=10, ge=1)):
     offset = (page - 1) * size
-    query = """
+    query =  "SELECT video_id, video_name, publicity FROM videos WHERE uploader = :username"
     SELECT video_id, video_name, publicity
     FROM videos
     WHERE uploader = :username
