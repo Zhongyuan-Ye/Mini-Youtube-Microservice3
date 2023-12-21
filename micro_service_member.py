@@ -115,7 +115,7 @@ async def find_all(username: str):
     videos = await database.fetch_all(query=query, values={"username": username})
 
     def get_imgage(video_ide):
-        req_url = str(ms1_url)+"/get-video-image/"+str(video_ide)
+        req_url = str(ms1_url)+"/get-video-image/"+str(video_ide)+".mp4"
         response_current = requests.get(req_url)
         return response_current.json()["image"]
 
