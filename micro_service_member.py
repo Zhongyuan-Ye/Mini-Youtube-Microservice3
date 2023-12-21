@@ -36,33 +36,37 @@ ms1_url = 'http://ec2-3-16-13-173.us-east-2.compute.amazonaws.com:1024'
 
 @app.post("/upload-video/")
 async def upload_video(username: str, file: UploadFile = File(...)):
-    new_video_id = str(uuid.uuid4())
-    new_file_name = f"{new_video_id}.mp4"
-
-    # Calling Microservice 1 to upload the video
-    response = requests.post(f"{ms1_url}/upload-video/", files={"file": (new_file_name, file.file)})
-
-    if response.status_code == 200:
-        query = "INSERT INTO videos (video_id, video_name, uploader, publicity) VALUES (:video_id, :video_name, :uploader, :publicity)"
-        values = {"video_id": new_video_id, "video_name": file.filename, "uploader": username, "publicity": False}
-        await database.execute(query=query, values=values)
-        return {"message": "Success", "upload_unique_video_id": new_video_id}
+    if username != "not_login":
+        new_video_id = str(uuid.uuid4())
+        new_file_name = f"{new_video_id}.mp4"
+    
+        # Calling Microservice 1 to upload the video
+        response = requests.post(f"{ms1_url}/upload-video/", files={"file": (new_file_name, file.file)})
+    
+        if response.status_code == 200:
+            query = "INSERT INTO videos (video_id, video_name, uploader, publicity) VALUES (:video_id, :video_name, :uploader, :publicity)"
+            values = {"video_id": new_video_id, "video_name": file.filename, "uploader": username, "publicity": False}
+            await database.execute(query=query, values=values)
+            return {"message": "Success", "upload_unique_video_id": new_video_id}
+        else:
+            raise HTTPException(status_code=response.status_code, detail=response.json())
     else:
-        raise HTTPException(status_code=response.status_code, detail=response.json())
+        return {"message": "Please login"}
 
 
 @app.get("/fetch-video/{username}/{video_id}")
 async def fetch_video(username: str, video_id: str):
-    query = "SELECT * FROM videos WHERE video_id = :video_id"
-    video = await database.fetch_one(query=query, values={"video_id": video_id})
-    if video and (video['uploader'] == username or video['publicity']):
-        response = requests.get(f"{ms1_url}/fetch-video/{video_id}.mp4", stream=True)
-        if response.status_code == 200:
-            return StreamingResponse(response.iter_content(chunk_size=1024*1024), media_type="video/mp4")
+    if username != "not_login":
+        query = "SELECT * FROM videos WHERE video_id = :video_id"
+        video = await database.fetch_one(query=query, values={"video_id": video_id})
+        if video and (video['uploader'] == username or video['publicity']):
+            response = requests.get(f"{ms1_url}/fetch-video/{video_id}.mp4", stream=True)
+            if response.status_code == 200:
+                return StreamingResponse(response.iter_content(chunk_size=1024*1024), media_type="video/mp4")
+            else:
+                raise HTTPException(status_code=response.status_code, detail="Error fetching video")
         else:
-            raise HTTPException(status_code=response.status_code, detail="Error fetching video")
-    else:
-        raise HTTPException(status_code=404, detail="Video not found or access denied")
+            raise HTTPException(status_code=404, detail="Video not found or access denied")
 
 
 @app.get("/weather/nyc")
