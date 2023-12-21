@@ -113,8 +113,14 @@ def publish_video(username: str, video_id: str):
 async def find_all(username: str):
     query =  """SELECT video_id, video_name, publicity  FROM videos WHERE uploader = :username ORDER BY video_name """
     videos = await database.fetch_all(query=query, values={"username": username})
+
+    def get_imgage(video_ide):
+        req_url = str(ms1_url)+"/get-video-image/"+str(video_ide)
+        response_current = requests.get(req_url)
+        return response_current.json()["image"]
+
     if videos:
-        return [{"video_id": video['video_id'], "video_name": video['video_name'], "publicity": video['publicity'], "video_link": str(ms1_url)+str("/fetch-video/")+video['video_id']+str(".mp4")} for video in videos]
+        return [{"video_id": video['video_id'], "video_name": video['video_name'], "publicity": video['publicity'], "video_link": str(ms1_url)+str("/fetch-video/")+video['video_id']+str(".mp4"), "video_image": get_imgage(video['video_id']) } for video in videos]
     else:
         return {"message": "No video found"}
 
