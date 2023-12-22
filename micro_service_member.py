@@ -95,18 +95,20 @@ async def delete_video(username: str, video_id: str):
         raise HTTPException(status_code=404, detail="Video not found or access denied")
 
 
-@app.put("/publish-video/{username}/{video_id}")
-def publish_video(username: str, video_id: str):
-    query = "UPDATE videos SET publicity = True WHERE video_id = :video_id AND uploader = :uploader"
-    values = {"video_id": video_id, "uploader": username}
+@app.get("/random-6/")
+async def random_six():
+    query = """SELECT video_id, video_name, publicity FROM videos ORDER BY RANDOM() LIMIT 6"""
+    videos = await database.fetch_all(query=query)
 
-    # Running the database operation in a separate thread
-    result = database.fetch_one(query=query, values=values)
-    if result:
-        return {"message": "Video published successfully"}
+    def get_image(video_id):
+        req_url = str(ms1_url) + "/get-video-image/" + str(video_id) + ".mp4"
+        response_current = requests.get(req_url)
+        return response_current.json()["image"]
+
+    if videos:
+        return [{"video_id": video['video_id'], "video_name": video['video_name'], "publicity": video['publicity'], "video_link": str(ms1_url) + "/fetch-video/" + video['video_id'] + ".mp4", "video_image": get_image(video['video_id'])} for video in videos]
     else:
-        return {"message": "Video not found or access denied"}
-
+        return {"message": "No video found"}
 
 
 @app.get("/find-all-videos/{username}")
