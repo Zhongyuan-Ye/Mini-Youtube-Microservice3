@@ -68,15 +68,16 @@ async def fetch_video(username: str, video_id: str):
         else:
             raise HTTPException(status_code=404, detail="Video not found or access denied")
 
-
 @app.get("/weather/nyc")
 async def get_weather_nyc():
-
-    response = requests.get("https://api.openweathermap.org/data/3.0/onecall?lat=40.71&lon=-74.00&appid=cabf57bb4bf902270e971a920098e5b6")
-    if response.status_code == 200:
-        return response
-    else:
-        raise HTTPException(status_code=response.status_code, detail="Error fetching weather data")
+    try:
+        response = requests.get("https://api.openweathermap.org/data/3.0/onecall?lat=40.71&lon=-74.00&appid=cabf57bb4bf902270e971a920098e5b6")
+        response.raise_for_status()  # This will raise an HTTPError if the HTTP request returned an unsuccessful status code
+        return response.json()  # Convert the response to JSON before returning
+    except requests.HTTPError as http_err:
+        raise HTTPException(status_code=response.status_code, detail=str(http_err))
+    except Exception as err:
+        raise HTTPException(status_code=500, detail=str(err))
 
 
 @app.delete("/delete-video/{username}/{video_id}")
