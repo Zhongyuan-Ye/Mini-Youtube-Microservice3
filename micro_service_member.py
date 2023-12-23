@@ -69,7 +69,7 @@ async def fetch_video(username: str, video_id: str):
             raise HTTPException(status_code=404, detail="Video not found or access denied")
 
 @app.get("/weather/nyc")
-async def get_weather_nyc():
+def get_weather_nyc():
     try:
         response = requests.get("https://api.openweathermap.org/data/3.0/onecall?lat=40.71&lon=-74.00&appid=cabf57bb4bf902270e971a920098e5b6")
         response.raise_for_status()  # This will raise an HTTPError if the HTTP request returned an unsuccessful status code
